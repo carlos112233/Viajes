@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: import_of_legacy_library_into_null_safe
 // import 'package:shared_preferences/shared_preferences.dart';
@@ -44,12 +44,12 @@ class _HomevState extends State<Homev> {
   // ignore: unused_element
 
   // ignore: prefer_const_constructors
-  // MethodChannel platform = MethodChannel('BackgroundServices');
+  MethodChannel platform = MethodChannel('BackgroundServices');
 
-  // void startServices() async {
-  //   dynamic value = await platform.invokeMethod('startServices');
-  //   debugPrint(value);
-  // }
+  void startServices() async {
+    dynamic value = await platform.invokeMethod('startServices');
+    debugPrint(value);
+  }
 
   @override
   void initState() {
@@ -113,7 +113,7 @@ class _HomevState extends State<Homev> {
   Future<void> _showMyDialog(String tracto, String rem, String rem2, String cp,
       String operador, List image) async {
     final prefs = await SharedPreferences.getInstance();
-    // startServices();
+    startServices();
     List<String> img64 = [];
     for (var i = 0; i < image.length; i++) {
       Uint8List bytes = File(image[i]).readAsBytesSync();

@@ -6,13 +6,11 @@ class Finalizarv extends StatelessWidget {
   final String rem;
   final String rem2;
   final String cp;
-  final String operador;
 
   const Finalizarv(
     this.tracto,
     this.rem,
     this.rem2,
-    this.operador,
     this.cp, {
     Key? key,
   }) : super(key: key);
@@ -34,13 +32,13 @@ class Finalizarv extends StatelessWidget {
         children: <Widget>[
           Center(
             child: Container(
-                height: 2000,
+                height: 2200,
                 color: Colors.white,
                 child: ListView(
                   children: <Widget>[
                     // ignore: prefer_const_constructors
                     SizedBox(
-                      height: 120,
+                      height: 20,
                     ),
                     const Center(
                       child: Text(
@@ -58,8 +56,8 @@ class Finalizarv extends StatelessWidget {
                     Container(
                       // ignore: unnecessary_new
                       // ignore: prefer_const_constructors
-                      margin: EdgeInsets.symmetric(horizontal: 90.0),
-                      height: 600,
+                      margin: EdgeInsets.symmetric(horizontal: 15.0),
+                      height: 900,
                       // ignore: deprecated_member_use
                       child: const Posicionamiento(),
                     ),

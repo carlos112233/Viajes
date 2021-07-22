@@ -60,11 +60,11 @@ class _PasarState extends State<Pasar> {
               },
               child: CircleAvatar(
                 radius: 55,
-                backgroundColor: const Color(0xffFDCF09),
+                backgroundColor: Colors.white,
                 // ignore: unnecessary_null_comparison
                 child: _image != null
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(20),
                         child: Image.file(
                           _image,
                           width: 400,
@@ -75,7 +75,7 @@ class _PasarState extends State<Pasar> {
                     : Container(
                         decoration: BoxDecoration(
                             color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(50)),
+                            borderRadius: BorderRadius.circular(20)),
                         width: 400,
                         height: 400,
                         child: Icon(
@@ -105,11 +105,11 @@ class _PasarState extends State<Pasar> {
               },
               child: CircleAvatar(
                 radius: 55,
-                backgroundColor: const Color(0xffFDCF09),
+                backgroundColor: Colors.white,
                 // ignore: unnecessary_null_comparison
                 child: _image2 != null
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(20),
                         child: Image.file(
                           _image2,
                           width: 400,
@@ -120,7 +120,7 @@ class _PasarState extends State<Pasar> {
                     : Container(
                         decoration: BoxDecoration(
                             color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(50)),
+                            borderRadius: BorderRadius.circular(20)),
                         width: 400,
                         height: 400,
                         child: Icon(
@@ -154,7 +154,7 @@ class _PasarState extends State<Pasar> {
                 // ignore: unnecessary_null_comparison
                 child: _image3 != null
                     ? ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
+                        borderRadius: BorderRadius.circular(20),
                         child: Image.file(
                           _image3,
                           width: 400,
@@ -165,7 +165,7 @@ class _PasarState extends State<Pasar> {
                     : Container(
                         decoration: BoxDecoration(
                             color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(50)),
+                            borderRadius: BorderRadius.circular(20)),
                         width: 400,
                         height: 400,
                         child: Icon(

@@ -1,17 +1,23 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 // ignore: import_of_legacy_library_into_null_safe
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:geocoding/geocoding.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:viajes/components/api_insert.dart';
-import 'package:viajes/viajes/homev.dart';
+import 'package:viajes/menu/menu.dart';
 
 class Posicionamiento extends StatefulWidget {
   const Posicionamiento({
@@ -23,19 +29,160 @@ class Posicionamiento extends StatefulWidget {
 }
 
 class _PosicionamientoState extends State<Posicionamiento> {
-  late String _currentAddress = null as String;
-  late Timer time;
+  // ignore: prefer_const_constructors, unused_field
+  late Position _currentPosition;
+  // ignore: prefer_const_constructors
+  MethodChannel platform = MethodChannel('BackgroundServices');
+
+  void startServices() async {
+    dynamic value = await platform.invokeMethod('startServices');
+    debugPrint(value);
+    sleep(const Duration(seconds: 20));
+  }
+
+  // ignore: unused_field
+
+  // ignore: prefer_const_constructors
+
   @override
   void initState() {
     super.initState();
-    // ignore: prefer_const_constructors
-    //main();
+    _callback();
   }
 
-  @override
-  void dispose() {
-    time.cancel();
-    super.dispose();
+  late final List _image = [];
+
+  // ignore: prefer_typing_uninitialized_variables
+  _imgFromCamera() async {
+    var image = await ImagePicker()
+        .getImage(source: ImageSource.camera, imageQuality: 50);
+
+    setState(() {
+      var img = File(image!.path);
+      _image.add(img.path);
+    });
+  }
+
+  _imgFromGallery() async {
+    var image = await ImagePicker()
+        .getImage(source: ImageSource.gallery, imageQuality: 50);
+
+    setState(() {
+      var img = File(image!.path);
+      _image.add(img.path);
+    });
+  }
+
+  // ignore: unused_element
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            // ignore: avoid_unnecessary_containers
+            child: Container(
+              child: Wrap(
+                children: <Widget>[
+                  ListTile(
+                      leading: const Icon(Icons.photo_library),
+                      title: const Text('Galeria'),
+                      onTap: () {
+                        _imgFromGallery();
+                        Navigator.of(context).pop();
+                      }),
+                  ListTile(
+                    leading: const Icon(Icons.photo_camera),
+                    title: const Text('Camera'),
+                    onTap: () {
+                      _imgFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Future<void> _showMyDialog(List image) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? cp = prefs.getString('cp');
+    List<String> img64 = [];
+    for (var i = 0; i < image.length; i++) {
+      Uint8List bytes = File(image[i]).readAsBytesSync();
+      String data = base64Encode(bytes);
+      img64.add(data);
+    }
+
+    // ignore: avoid_print
+
+    // ignore: curly_braces_in_flow_control_structures, unnecessary_null_comparison
+    if (img64 == null) {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Mensaje'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: const <Widget>[Text('No ha igresado la fotos')],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Ok'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      var url = Uri.parse(
+          "http://supertrack-net.ddns.net:50371/viajesapi/select_viajes.php");
+      final response = await http.post(url, body: {
+        'cp': cp.toString().trim(),
+        'img': img64.toString(),
+      }, headers: {
+        'Accept': 'application/javascript',
+        'Content-Type': 'application/x-www-form-urlencoded'
+      });
+      final result = insertPositionFromJson(response.body);
+      if (result.mensaje == "Se registro correctamente") {
+        return showDialog<void>(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Mensaje'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: const <Widget>[
+                    Text('Se han enviado correctamente los datos'),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _image.clear();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        //
+      }
+    }
   }
 
   @override
@@ -52,8 +199,8 @@ class _PosicionamientoState extends State<Posicionamiento> {
               child: InkWell(
                 splashColor: Colors.redAccent[700], // Splash color
                 onTap: () {
-                  _getCurrentLocation(
-                      'Botón de panico activado', DateTime.now().toString());
+                  _getCurrentLocation('Botón de panico activado',
+                      DateTime.now().toString(), "1");
                 },
                 child: const SizedBox(
                     width: 250,
@@ -68,7 +215,109 @@ class _PosicionamientoState extends State<Posicionamiento> {
           ),
           // ignore: prefer_const_constructors
           SizedBox(
-            height: 100,
+            height: 50,
+          ),
+          Container(
+            height: 180,
+            // ignore: prefer_const_constructors
+            padding: EdgeInsets.all(5),
+            child: Column(
+              children: <Widget>[
+                // ignore: deprecated_member_use
+                RaisedButton(
+                  textColor: Colors.white,
+                  color: Colors.blue.shade700,
+                  // ignore: prefer_const_constructors
+                  child: Column(
+                    // Replace with a Row for horizontal icon + text
+                    // ignore: prefer_const_literals_to_create_immutables
+                    children: <Widget>[
+                      // ignore: prefer_const_constructors
+                      Icon(
+                        Icons.image_search,
+                        size: 30,
+                      )
+                    ],
+                  ),
+                  onPressed: () {
+                    _showPicker(context);
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+                Expanded(
+                  child: GridView.count(
+                    scrollDirection: Axis.horizontal,
+                    crossAxisCount: 1,
+                    children: List.generate(_image.length, (index) {
+                      File asset = File(_image[index]);
+                      return Center(
+                        child: CircleAvatar(
+                          radius: 55,
+                          backgroundColor: Colors.white10,
+                          // ignore: unnecessary_null_comparison
+                          child: asset != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(0),
+                                  child: Image.file(
+                                    asset,
+                                    width: 500,
+                                    height: 800,
+                                    fit: BoxFit.fitHeight,
+                                  ),
+                                )
+                              : Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(0)),
+                                  width: 500,
+                                  height: 800,
+                                  child: Icon(
+                                    Icons.camera_alt,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // ignore: prefer_const_constructors
+          SizedBox(
+            height: 10,
+          ),
+          // ignore: deprecated_member_use
+          RaisedButton(
+            textColor: Colors.white,
+            color: Colors.blue.shade700,
+            // ignore: prefer_const_constructors
+            child: Column(
+              // Replace with a Row for horizontal icon + text
+              // ignore: prefer_const_literals_to_create_immutables
+              children: <Widget>[
+                // ignore: prefer_const_constructors
+                Text('Enviar'),
+                // ignore: prefer_const_constructors
+                Icon(
+                  Icons.send,
+                  size: 30,
+                ),
+              ],
+            ),
+            onPressed: () {
+              _showMyDialog(_image);
+            },
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+          ),
+          //ignore: prefer_const_constructors
+          SizedBox(
+            height: 150,
           ),
 
           // ignore: unnecessary_new
@@ -90,11 +339,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
                   ),
                 )),
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const Homev()),
-                (Route<dynamic> route) => false,
-              );
+              _getCurrentLocation("", DateTime.now().toString(), "0");
             },
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
@@ -105,33 +350,19 @@ class _PosicionamientoState extends State<Posicionamiento> {
     );
   }
 
-  _getCurrentLocation(String alerta, String date) async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    } else {}
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      } else {
-        Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.best,
-                forceAndroidLocationManager: true)
-            .then((Position position) {
-          _getAddressFromLatLng(alerta, date, position);
-        }).catchError((e) {
-          // ignore: avoid_print
-          print(e);
-        });
-      }
-    }
+  _getCurrentLocation(String alerta, String date, String estatus) {
+    Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
+        .then((Position position) {
+      _currentPosition = position;
+      _getAddressFromLatLng(alerta, date, estatus, position);
+    }).catchError((e) {
+      // ignore: avoid_print
+      print(e);
+    });
   }
 
-  _getAddressFromLatLng(String alerta, String date, Position position) async {
+  _getAddressFromLatLng(
+      String alerta, String date, String estatus, Position position) async {
     InsertPosition mensaje;
     try {
       List<Placemark> placemarks =
@@ -141,8 +372,10 @@ class _PosicionamientoState extends State<Posicionamiento> {
       String? rem = prefs.getString('rem');
       String? rem2 = prefs.getString('rem2');
       String? cp = prefs.getString('cp');
+      String? token = prefs.getString('token');
       Placemark place = placemarks[0];
-      _currentAddress =
+      // ignore: unused_local_variable
+      var _currentAddress =
           "${place.locality}, ${place.country}, ${place.street}, ${place.postalCode}";
       var url = Uri.parse(
           'http://supertrack-net.ddns.net:50371/viajesapi/api_insert.php');
@@ -157,6 +390,8 @@ class _PosicionamientoState extends State<Posicionamiento> {
           'desc_evento': alerta,
           'localidad': _currentAddress.toString(),
           'cp': cp.toString(),
+          'token': token.toString(),
+          'estatus': estatus
         }, headers: {
           'Accept': 'application/javascript',
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -164,6 +399,33 @@ class _PosicionamientoState extends State<Posicionamiento> {
         mensaje = insertPositionFromJson(response.body);
         // ignore: avoid_print
         print(mensaje.mensaje);
+      } else if (estatus == "0") {
+        var response = await http.post(url, body: {
+          'unidad': tracto.toString(),
+          'remolque': rem.toString(),
+          'remolque2': rem2.toString(),
+          'latitud': position.latitude.toString(),
+          'longitud': position.longitude.toString(),
+          'fecha_ap': date,
+          'desc_evento': alerta,
+          'localidad': _currentAddress.toString(),
+          'cp': cp.toString(),
+          'token': token.toString(),
+          'estatus': estatus
+        }, headers: {
+          'Accept': 'application/javascript',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        });
+        mensaje = insertPositionFromJson(response.body);
+        if (mensaje.mensaje == "finalizo el viaje") {
+          prefs.setString('cancelar', "si");
+          sleep(const Duration(seconds: 1));
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const Menu()),
+            (Route<dynamic> route) => false,
+          );
+        }
       } else {
         var response = await http.post(url, body: {
           'unidad': tracto.toString(),
@@ -175,6 +437,8 @@ class _PosicionamientoState extends State<Posicionamiento> {
           'desc_evento': alerta,
           'localidad': _currentAddress.toString(),
           'cp': cp.toString(),
+          'token': token.toString(),
+          'estatus': estatus
         }, headers: {
           'Accept': 'application/javascript',
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -189,23 +453,29 @@ class _PosicionamientoState extends State<Posicionamiento> {
     }
   }
 
-  // Future<void> _callback() async {
-  //   // ignore: avoid_print
-  //   print('start hilo: ${DateTime.now()}');
-  //   try {
-  //     // ignore: prefer_const_constructors
-  //     await Future.delayed(
-  //       // ignore: prefer_const_constructors
-  //       Duration(seconds: 10),
-  //     );
+  Future<void> _callback() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? cancelar = prefs.getString("cancelar");
+    // ignore: avoid_print
+    print('start hilo: ${DateTime.now()}');
+    try {
+      // ignore: prefer_const_constructors
+      if (cancelar == "") {
+        await Future.delayed(
+            // ignore: prefer_const_constructors
+            Duration(seconds: 8),
+            _getCurrentLocation('', DateTime.now().toString(), "1"));
+      }
 
-  //     // ignore: unnecessary_null_comparison, prefer_conditional_assignment
+      // ignore: unnecessary_null_comparison, prefer_conditional_assignment
 
-  //   } finally {
-  //     // ignore: avoid_print
-  //     print('fin hilo: ${DateTime.now()}');
-  //     // ignore: prefer_const_constructors
-  //     Timer(Duration(minutes: 5), _callback);
-  //   }
-  // }
+    } finally {
+      if (cancelar == "") {
+        // ignore: avoid_print
+        print('fin hilo: ${DateTime.now()}');
+        // ignore: prefer_const_constructors
+        Timer(Duration(minutes: 1), _callback);
+      }
+    }
+  }
 }

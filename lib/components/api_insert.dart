@@ -11,7 +11,7 @@ String insertPositionToJson(InsertPosition data) => json.encode(data.toJson());
 
 class InsertPosition {
   InsertPosition({
-    required this.mensaje,
+    this.mensaje,
   });
 
   String mensaje;

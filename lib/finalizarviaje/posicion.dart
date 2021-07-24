@@ -3,14 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:flutter/services.dart';
-// ignore: import_of_legacy_library_into_null_safe
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:geocoding/geocoding.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,7 +17,7 @@ import 'package:viajes/menu/menu.dart';
 
 class Posicionamiento extends StatefulWidget {
   const Posicionamiento({
-    Key? key,
+    key,
   }) : super(key: key);
 
   @override
@@ -30,7 +26,7 @@ class Posicionamiento extends StatefulWidget {
 
 class _PosicionamientoState extends State<Posicionamiento> {
   // ignore: prefer_const_constructors, unused_field
-  late Position _currentPosition;
+  Position _currentPosition;
   // ignore: prefer_const_constructors
   MethodChannel platform = MethodChannel('BackgroundServices');
 
@@ -50,7 +46,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
     _callback();
   }
 
-  late final List _image = [];
+  final List _image = [];
 
   // ignore: prefer_typing_uninitialized_variables
   _imgFromCamera() async {
@@ -58,7 +54,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
         .getImage(source: ImageSource.camera, imageQuality: 50);
 
     setState(() {
-      var img = File(image!.path);
+      var img = File(image.path);
       _image.add(img.path);
     });
   }
@@ -68,7 +64,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
         .getImage(source: ImageSource.gallery, imageQuality: 50);
 
     setState(() {
-      var img = File(image!.path);
+      var img = File(image.path);
       _image.add(img.path);
     });
   }
@@ -107,7 +103,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
 
   Future<void> _showMyDialog(List image) async {
     final prefs = await SharedPreferences.getInstance();
-    String? cp = prefs.getString('cp');
+    String cp = prefs.getString('cp');
     List<String> img64 = [];
     for (var i = 0; i < image.length; i++) {
       Uint8List bytes = File(image[i]).readAsBytesSync();
@@ -368,11 +364,11 @@ class _PosicionamientoState extends State<Posicionamiento> {
       List<Placemark> placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
       final prefs = await SharedPreferences.getInstance();
-      String? tracto = prefs.getString('tracto');
-      String? rem = prefs.getString('rem');
-      String? rem2 = prefs.getString('rem2');
-      String? cp = prefs.getString('cp');
-      String? token = prefs.getString('token');
+      String tracto = prefs.getString('tracto');
+      String rem = prefs.getString('rem');
+      String rem2 = prefs.getString('rem2');
+      String cp = prefs.getString('cp');
+      String token = prefs.getString('token');
       Placemark place = placemarks[0];
       // ignore: unused_local_variable
       var _currentAddress =
@@ -455,7 +451,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
 
   Future<void> _callback() async {
     final prefs = await SharedPreferences.getInstance();
-    String? cancelar = prefs.getString("cancelar");
+    String cancelar = prefs.getString("cancelar");
     // ignore: avoid_print
     print('start hilo: ${DateTime.now()}');
     try {

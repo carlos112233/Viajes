@@ -12,7 +12,7 @@ class Finalizarv extends StatelessWidget {
     this.rem,
     this.rem2,
     this.cp, {
-    Key? key,
+    key,
   }) : super(key: key);
 
   @override

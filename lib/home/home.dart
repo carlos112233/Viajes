@@ -9,7 +9,7 @@ import 'package:viajes/viajes/pasar.dart';
 import 'package:http/http.dart' as http;
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -132,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         // ignore: unnecessary_new
                         // ignore: prefer_const_constructors
                         margin: EdgeInsets.symmetric(horizontal: 100.0),
-                        child: TypeAheadField<User?>(
+                        child: TypeAheadField<User>(
                           debounceDuration: const Duration(milliseconds: 500),
                           hideSuggestionsOnKeyboardHide: false,
                           textFieldConfiguration: TextFieldConfiguration(
@@ -143,8 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                           suggestionsCallback: UserApi.getUserSuggestion,
-                          itemBuilder: (context, User? suggestion) {
-                            final user = suggestion!;
+                          itemBuilder: (context, User suggestion) {
+                            final user = suggestion;
                             return ListTile(
                               // ignore: unnecessary_string_interpolations
                               title: Text('${user.operadorNombre}'),
@@ -160,8 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                          onSuggestionSelected: (User? suggestion) {
-                            final user = suggestion!;
+                          onSuggestionSelected: (User suggestion) {
+                            final user = suggestion;
                             ScaffoldMessenger.of(context)
                               ..removeCurrentSnackBar()
                               ..showSnackBar(SnackBar(

@@ -7,7 +7,7 @@ String tokenestatusToJson(Tokenestatus data) => json.encode(data.toJson());
 
 class Tokenestatus {
   Tokenestatus({
-    required this.token,
+    this.token,
   });
 
   String token;

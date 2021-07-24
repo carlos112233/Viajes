@@ -12,7 +12,7 @@ import 'package:viajes/menu/menu.dart';
 class Pasar extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
   final String datos;
-  const Pasar({Key? key, required this.datos}) : super(key: key);
+  const Pasar({Key key, this.datos}) : super(key: key);
 
   @override
   _PasarState createState() => _PasarState();
@@ -205,11 +205,11 @@ class _PasarState extends State<Pasar> {
 
     setState(() {
       if (opc == 1) {
-        _image = File(image!.path);
+        _image = File(image.path);
       } else if (opc == 2) {
-        _image2 = File(image!.path);
+        _image2 = File(image.path);
       } else {
-        _image3 = File(image!.path);
+        _image3 = File(image.path);
       }
     });
   }
@@ -220,11 +220,11 @@ class _PasarState extends State<Pasar> {
 
     setState(() {
       if (opc == 1) {
-        _image = File(image!.path);
+        _image = File(image.path);
       } else if (opc == 2) {
-        _image2 = File(image!.path);
+        _image2 = File(image.path);
       } else {
-        _image3 = File(image!.path);
+        _image3 = File(image.path);
       }
     });
   }

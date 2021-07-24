@@ -8,8 +8,8 @@ String userToJson(List<User> data) =>
 
 class User {
   User({
-    required this.operadorClave,
-    required this.operadorNombre,
+    this.operadorClave,
+    this.operadorNombre,
   });
 
   String operadorClave;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Liquidacion extends StatefulWidget {
-  const Liquidacion({Key? key}) : super(key: key);
+  const Liquidacion({Key key}) : super(key: key);
 
   @override
   _LiquidacionState createState() => _LiquidacionState();

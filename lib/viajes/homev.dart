@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: import_of_legacy_library_into_null_safe
 // import 'package:shared_preferences/shared_preferences.dart';
@@ -16,9 +17,11 @@ import 'package:viajes/finalizarviaje/finalizarviaje.dart';
 //import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:viajes/pruebas/pruebas.dart';
+import 'package:viajes/services/notification.dart';
 
 class Homev extends StatefulWidget {
-  const Homev({Key? key}) : super(key: key);
+  const Homev({Key key}) : super(key: key);
 
   @override
   _HomevState createState() => _HomevState();
@@ -32,14 +35,14 @@ class _HomevState extends State<Homev> {
   final TextEditingController operador = TextEditingController();
   // ignore: prefer_typing_uninitialized_variables
   var mensajes;
-  String? trac;
-  String? rem;
-  String? rem2;
-  String? cp;
-  String? token;
+  String trac;
+  String rem;
+  String rem2;
+  String cp;
+  String token;
   // late Position _currentPosition = null as Position;
   // late String _currentAddress = null as String;
-  late final List _image = [];
+  final List _image = [];
 
   // ignore: unused_element
 
@@ -63,7 +66,7 @@ class _HomevState extends State<Homev> {
         .getImage(source: ImageSource.camera, imageQuality: 50);
 
     setState(() {
-      var img = File(image!.path);
+      var img = File(image.path);
       _image.add(img.path);
     });
   }
@@ -73,7 +76,7 @@ class _HomevState extends State<Homev> {
         .getImage(source: ImageSource.gallery, imageQuality: 50);
 
     setState(() {
-      var img = File(image!.path);
+      var img = File(image.path);
       _image.add(img.path);
     });
   }
@@ -391,9 +394,19 @@ class _HomevState extends State<Homev> {
   @override
   Widget build(BuildContext context) {
     if (mensajes == "Si existe un viaje activo") {
-      return Finalizarv(trac!, rem!, rem2!, cp!);
+      return Finalizarv(trac, rem, rem2, cp);
     } else {
-      return _viajeCurso();
+      return MultiProvider(
+          child: MaterialApp(
+            theme: ThemeData(fontFamily: 'Monteserat'),
+            home: Pruebas(),
+            debugShowCheckedModeBanner: false,
+          ),
+          providers: [
+            ChangeNotifierProvider(
+              create: (_) => NotificationService(),
+            )
+          ]);
     }
   }
 
@@ -644,11 +657,11 @@ class _HomevState extends State<Homev> {
 
   Future<void> iniciar() async {
     final prefs = await SharedPreferences.getInstance();
-    String? tracs = prefs.getString('tracto');
-    String? rems = prefs.getString('rem');
-    String? rems2 = prefs.getString('rem2');
-    String? cps = prefs.getString('cp');
-    String? tokens = prefs.getString('token');
+    String tracs = prefs.getString('tracto');
+    String rems = prefs.getString('rem');
+    String rems2 = prefs.getString('rem2');
+    String cps = prefs.getString('cp');
+    String tokens = prefs.getString('token');
     var url = Uri.parse(
         "http://supertrack-net.ddns.net:50371/viajesapi/select_viajes_activos.php");
     var response = await http.post(url, body: {

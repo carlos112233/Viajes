@@ -17,7 +17,7 @@ public class MainActivity: FlutterActivity() {
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "BackgroundServices").setMethodCallHandler { call, result ->
             if (call.method == "startServices") {
-                val intent =  Intent(this, gpsServices::class.java)
+                val intent =  Intent(this, GpsServices::class.java)
                 startService(intent);
                 result.success("inicio servicio")
             }

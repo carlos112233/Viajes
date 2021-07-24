@@ -6,8 +6,8 @@ String respuestaToJson(Respuesta data) => json.encode(data.toJson());
 
 class Respuesta {
   Respuesta({
-    required this.mensaje,
-    required this.token,
+    this.mensaje,
+    this.token,
   });
 
   String mensaje;

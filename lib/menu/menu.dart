@@ -4,7 +4,7 @@ import 'package:viajes/viajes/homev.dart';
 import 'package:viajes/viajes/pasar.dart';
 
 class Menu extends StatefulWidget {
-  const Menu({Key? key}) : super(key: key);
+  const Menu({Key key}) : super(key: key);
 
   @override
   _MenuState createState() => _MenuState();

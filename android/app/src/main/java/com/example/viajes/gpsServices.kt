@@ -6,19 +6,18 @@ import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
-class gpsServices() : Service() {
+class GpsServices() : Service() {
 
     private val TAG = "BackgroundSoundService"
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_NOT_STICKY
+        return START_STICKY
     }
     override fun onBind(intent: Intent): IBinder {
         TODO("Return the communication channel to the service.")

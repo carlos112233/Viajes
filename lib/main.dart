@@ -12,7 +12,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({Key key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 }
 
 class Session extends StatefulWidget {
-  const Session({Key? key}) : super(key: key);
+  const Session({Key key}) : super(key: key);
 
   @override
   _SessionState createState() => _SessionState();
@@ -37,7 +37,7 @@ class Session extends StatefulWidget {
 
 class _SessionState extends State<Session> {
   // ignore: avoid_init_to_null
-  late String? token = null;
+  String token = null;
   @override
   void initState() {
     super.initState();
@@ -77,7 +77,7 @@ class _SessionState extends State<Session> {
     if (token == '') {
       return MaterialApp(
         builder: (context, widget) => ResponsiveWrapper.builder(
-            BouncingScrollWrapper.builder(context, widget!),
+            BouncingScrollWrapper.builder(context, widget),
             maxWidth: 1200,
             minWidth: 450,
             defaultScale: true,
@@ -101,7 +101,7 @@ class _SessionState extends State<Session> {
     } else {
       return MaterialApp(
         builder: (context, widget) => ResponsiveWrapper.builder(
-            BouncingScrollWrapper.builder(context, widget!),
+            BouncingScrollWrapper.builder(context, widget),
             maxWidth: 1200,
             minWidth: 450,
             defaultScale: true,

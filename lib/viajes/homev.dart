@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -17,7 +16,6 @@ import 'package:viajes/finalizarviaje/finalizarviaje.dart';
 //import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:viajes/pruebas/pruebas.dart';
 import 'package:viajes/services/notification.dart';
 
 class Homev extends StatefulWidget {
@@ -45,14 +43,6 @@ class _HomevState extends State<Homev> {
   final List _image = [];
 
   // ignore: unused_element
-
-  // ignore: prefer_const_constructors
-  MethodChannel platform = MethodChannel('BackgroundServices');
-
-  void startServices() async {
-    dynamic value = await platform.invokeMethod('startServices');
-    debugPrint(value);
-  }
 
   @override
   void initState() {
@@ -116,7 +106,7 @@ class _HomevState extends State<Homev> {
   Future<void> _showMyDialog(String tracto, String rem, String rem2, String cp,
       String operador, List image) async {
     final prefs = await SharedPreferences.getInstance();
-    startServices();
+
     List<String> img64 = [];
     for (var i = 0; i < image.length; i++) {
       Uint8List bytes = File(image[i]).readAsBytesSync();
@@ -124,7 +114,10 @@ class _HomevState extends State<Homev> {
 
       img64.add(data);
     }
-    prefs.setString('cancelar', "");
+    prefs.setString('tracto', tracto);
+    prefs.setString('rem', rem);
+    prefs.setString('rem2', rem2);
+    prefs.setString('cp', cp);
     // ignore: avoid_print
     print(img64.length);
     if (tracto == '') {
@@ -396,17 +389,7 @@ class _HomevState extends State<Homev> {
     if (mensajes == "Si existe un viaje activo") {
       return Finalizarv(trac, rem, rem2, cp);
     } else {
-      return MultiProvider(
-          child: MaterialApp(
-            theme: ThemeData(fontFamily: 'Monteserat'),
-            home: Pruebas(),
-            debugShowCheckedModeBanner: false,
-          ),
-          providers: [
-            ChangeNotifierProvider(
-              create: (_) => NotificationService(),
-            )
-          ]);
+      return _viajeCurso();
     }
   }
 
@@ -620,32 +603,38 @@ class _HomevState extends State<Homev> {
                   SizedBox(
                     height: 20,
                   ),
-
-                  Container(
-                    // ignore: unnecessary_new
-                    // ignore: prefer_const_constructors
-                    margin: EdgeInsets.symmetric(horizontal: 150.0),
-                    // ignore: deprecated_member_use
-                    child: RaisedButton(
-                      textColor: Colors.white,
-                      color: Colors.red.shade700,
-                      // ignore: prefer_const_constructors
-                      child: Text("Iniciar"),
-                      onPressed: () {
-                        _showMyDialog(
-                          tracto.text,
-                          remolque.text,
-                          remolque2.text,
-                          cartaporte.text,
-                          operador.text,
-                          _image,
-                        );
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
+                  Consumer<NotificationService>(
+                    builder: (context, model, _) => Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          // ignore: prefer_const_constructors
+                          margin: EdgeInsets.symmetric(horizontal: 150.0),
+                          // ignore: deprecated_member_use
+                          child: RaisedButton(
+                            textColor: Colors.white,
+                            color: Colors.red.shade700,
+                            // ignore: prefer_const_constructors
+                            child: Text("Iniciar"),
+                            onPressed: () {
+                              model.instantNofitication();
+                              _showMyDialog(
+                                tracto.text,
+                                remolque.text,
+                                remolque2.text,
+                                cartaporte.text,
+                                operador.text,
+                                _image,
+                              );
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -662,6 +651,7 @@ class _HomevState extends State<Homev> {
     String rems2 = prefs.getString('rem2');
     String cps = prefs.getString('cp');
     String tokens = prefs.getString('token');
+    print(rems);
     var url = Uri.parse(
         "http://supertrack-net.ddns.net:50371/viajesapi/select_viajes_activos.php");
     var response = await http.post(url, body: {

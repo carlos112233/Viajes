@@ -15,8 +15,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application
-        android:icon="@mipmap/ic_launcher"
-        android:label="viajes">
+        android:label="viajes"
+        android:icon="@mipmap/ic_launcher">
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
         <intent-filter>
         <action android:name="android.intent.action.BOOT_COMPLETED"></action>

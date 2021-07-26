@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viajes/liquidacion/liquidacion.dart';
-import 'package:viajes/viajes/homev.dart';
+import 'package:viajes/viajes/notificaciones.dart';
 import 'package:viajes/viajes/pasar.dart';
 
 class Menu extends StatefulWidget {
@@ -38,7 +38,8 @@ class _MenuState extends State<Menu> {
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const Homev()),
+                  MaterialPageRoute(
+                      builder: (context) => const Notificaciones()),
                   (Route<dynamic> route) => true,
                 );
               },

@@ -4,16 +4,17 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 // import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:viajes/components/api_insert.dart';
 import 'package:viajes/menu/menu.dart';
+import 'package:viajes/services/notification.dart';
 
 class Posicionamiento extends StatefulWidget {
   const Posicionamiento({
@@ -28,23 +29,17 @@ class _PosicionamientoState extends State<Posicionamiento> {
   // ignore: prefer_const_constructors, unused_field
   Position _currentPosition;
   // ignore: prefer_const_constructors
-  MethodChannel platform = MethodChannel('BackgroundServices');
+  // MethodChannel platform = MethodChannel('BackgroundServices');
 
-  void startServices() async {
-    dynamic value = await platform.invokeMethod('startServices');
-    debugPrint(value);
-    sleep(const Duration(seconds: 20));
-  }
+  // void startServices() async {
+  //   dynamic value = await platform.invokeMethod('startServices');
+  //   debugPrint(value);
+  //   sleep(const Duration(seconds: 20));
+  // }
 
   // ignore: unused_field
 
   // ignore: prefer_const_constructors
-
-  @override
-  void initState() {
-    super.initState();
-    _callback();
-  }
 
   final List _image = [];
 
@@ -214,7 +209,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
             height: 50,
           ),
           Container(
-            height: 180,
+            height: 260,
             // ignore: prefer_const_constructors
             padding: EdgeInsets.all(5),
             child: Column(
@@ -242,41 +237,44 @@ class _PosicionamientoState extends State<Posicionamiento> {
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
-                Expanded(
-                  child: GridView.count(
-                    scrollDirection: Axis.horizontal,
-                    crossAxisCount: 1,
-                    children: List.generate(_image.length, (index) {
-                      File asset = File(_image[index]);
-                      return Center(
-                        child: CircleAvatar(
-                          radius: 55,
-                          backgroundColor: Colors.white10,
-                          // ignore: unnecessary_null_comparison
-                          child: asset != null
-                              ? ClipRRect(
-                                  borderRadius: BorderRadius.circular(0),
-                                  child: Image.file(
-                                    asset,
+                Container(
+                  height: 200,
+                  child: Expanded(
+                    child: GridView.count(
+                      scrollDirection: Axis.horizontal,
+                      crossAxisCount: 1,
+                      children: List.generate(_image.length, (index) {
+                        File asset = File(_image[index]);
+                        return Center(
+                          child: CircleAvatar(
+                            radius: 250,
+                            backgroundColor: Colors.white10,
+                            // ignore: unnecessary_null_comparison
+                            child: asset != null
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(0),
+                                    child: Image.file(
+                                      asset,
+                                      width: 500,
+                                      height: 800,
+                                      fit: BoxFit.fitHeight,
+                                    ),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        borderRadius: BorderRadius.circular(0)),
                                     width: 500,
                                     height: 800,
-                                    fit: BoxFit.fitHeight,
+                                    child: Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.grey[800],
+                                    ),
                                   ),
-                                )
-                              : Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.grey[200],
-                                      borderRadius: BorderRadius.circular(0)),
-                                  width: 500,
-                                  height: 800,
-                                  child: Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                        ),
-                      );
-                    }),
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                 ),
               ],
@@ -284,7 +282,7 @@ class _PosicionamientoState extends State<Posicionamiento> {
           ),
           // ignore: prefer_const_constructors
           SizedBox(
-            height: 10,
+            height: 20,
           ),
           // ignore: deprecated_member_use
           RaisedButton(
@@ -313,32 +311,39 @@ class _PosicionamientoState extends State<Posicionamiento> {
           ),
           //ignore: prefer_const_constructors
           SizedBox(
-            height: 150,
+            height: 60,
           ),
-
-          // ignore: unnecessary_new
-          // ignore: prefer_const_constructors, deprecated_member_use
-          RaisedButton(
-            textColor: Colors.white,
-            color: Colors.blueGrey,
-            // ignore: prefer_const_constructors
-            child: const SizedBox(
-                width: 250,
-                height: 40,
-                child: Center(
-                  child: Text(
-                    'Finalizar viaje',
-                    style: TextStyle(
-                      fontFamily: 'helvetica',
-                      fontSize: 20,
+          Container(
+            child: Consumer<NotificationService>(
+              builder: (context, model, _) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // ignore: prefer_const_constructors, deprecated_member_use
+                    RaisedButton(
+                      textColor: Colors.white,
+                      color: Colors.red.shade800,
+                      onPressed: () {
+                        _getCurrentLocation("", DateTime.now().toString(), "0");
+                        model.cancelNotification();
+                      },
+                      child: SizedBox(
+                        width: 250,
+                        height: 40,
+                        child: Center(
+                          child: Text(
+                            'Finalizar viaje',
+                            style: TextStyle(
+                              fontFamily: 'helvetica',
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
                     ),
-                  ),
-                )),
-            onPressed: () {
-              _getCurrentLocation("", DateTime.now().toString(), "0");
-            },
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
+                  ]),
             ),
           ),
         ],
@@ -446,32 +451,6 @@ class _PosicionamientoState extends State<Posicionamiento> {
     } catch (e) {
       // ignore: avoid_print
       print(e);
-    }
-  }
-
-  Future<void> _callback() async {
-    final prefs = await SharedPreferences.getInstance();
-    String cancelar = prefs.getString("cancelar");
-    // ignore: avoid_print
-    print('start hilo: ${DateTime.now()}');
-    try {
-      // ignore: prefer_const_constructors
-      if (cancelar == "") {
-        await Future.delayed(
-            // ignore: prefer_const_constructors
-            Duration(seconds: 8),
-            _getCurrentLocation('', DateTime.now().toString(), "1"));
-      }
-
-      // ignore: unnecessary_null_comparison, prefer_conditional_assignment
-
-    } finally {
-      if (cancelar == "") {
-        // ignore: avoid_print
-        print('fin hilo: ${DateTime.now()}');
-        // ignore: prefer_const_constructors
-        Timer(Duration(minutes: 1), _callback);
-      }
     }
   }
 }

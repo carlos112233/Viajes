@@ -38,12 +38,34 @@ class Session extends StatefulWidget {
 class _SessionState extends State<Session> {
   // ignore: avoid_init_to_null
   String token = null;
-  @override
-  void initState() {
-    super.initState();
-    // ignore: prefer_const_constructors
-    getitemLocalStorage();
-  }
+  // @override
+  // void initState() {
+  //   WidgetsBinding.instance.addObserver(this);
+  //   getitemLocalStorage();
+  //   super.initState();
+  //   // ignore: prefer_const_constructors
+  // }
+
+  // @override
+  // void dispose() {
+  //   WidgetsBinding.instance.removeObserver(this);
+  //   super.dispose();
+  // }
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   super.didChangeAppLifecycleState(state);
+  //   BuildContext context;
+  //   if (state == AppLifecycleState.inactive ||
+  //       state == AppLifecycleState.detached) return;
+
+  //   final isBackgrond = state == AppLifecycleState.paused;
+  //   if (isBackgrond) {
+  //     Provider.of<NotificationService>(context, listen: false).initialize();
+  //   } else {
+  //     Provider.of<NotificationService>(context, listen: false).initialize();
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

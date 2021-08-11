@@ -41,13 +41,14 @@ class _HomevState extends State<Homev> {
   // late Position _currentPosition = null as Position;
   // late String _currentAddress = null as String;
   final List _image = [];
+  final ImagePicker _picker = ImagePicker();
 
   // ignore: unused_element
 
   @override
   void initState() {
-    super.initState();
     iniciar();
+    super.initState();
   }
 
   // ignore: prefer_typing_uninitialized_variables
@@ -342,21 +343,34 @@ class _HomevState extends State<Homev> {
     if (mensaje.mensaje == null) {
       final data = cpConsultaFromJson(response.body);
       setState(() {
-        cartaporte.text = "";
-        tracto.text = "";
-        remolque.text = "";
-        remolque2.text = "";
-        operador.text = "";
-        cartaporte.text = data.cartaporte.trim();
-        tracto.text = data.tractoNumEco.trim();
-        remolque.text = data.remNe1.trim();
+        if (data.cartaporte != null) {
+          cartaporte.text = data.cartaporte.trim();
+        } else {
+          cartaporte.text = "";
+        }
+        if (data.tractoNumEco != null) {
+          tracto.text = data.tractoNumEco.trim();
+        } else {
+          tracto.text = "";
+        }
+
+        if (data.remNe1 != null) {
+          remolque.text = data.remNe1.trim();
+        } else {
+          remolque.text = "";
+        }
 
         if (data.remNe2 != null) {
           remolque2.text = data.remNe2.trim();
         } else {
           remolque2.text = "";
         }
-        operador.text = data.operadorNombre.trim();
+
+        if (data.operadorNombre != null) {
+          operador.text = data.operadorNombre.trim();
+        } else {
+          operador.text = "";
+        }
       });
     } else if (mensaje.mensaje == "No existe la carta porte") {
       return showDialog<void>(
@@ -617,7 +631,9 @@ class _HomevState extends State<Homev> {
                             // ignore: prefer_const_constructors
                             child: Text("Iniciar"),
                             onPressed: () {
-                              model.instantNofitication();
+                              //model.instantNofitication();
+                              model.sheduledNotification();
+
                               _showMyDialog(
                                 tracto.text,
                                 remolque.text,

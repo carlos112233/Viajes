@@ -11,10 +11,6 @@ import 'package:viajes/components/api_insert.dart';
 import 'package:http/http.dart' as http;
 import 'package:viajes/menu/menu.dart';
 
-doSometing() {
-  _callback();
-}
-
 _callback() async {
   print('start hilo: ${DateTime.now()}');
   try {
@@ -22,7 +18,7 @@ _callback() async {
     BuildContext context;
     await Future.delayed(
         // ignore: prefer_const_constructors
-        Duration(seconds: 8),
+        Duration(seconds: 0),
         _getCurrentLocation(context, '', DateTime.now().toString(), "1"));
 
     // ignore: unnecessary_null_comparison, prefer_conditional_assignment
@@ -31,7 +27,7 @@ _callback() async {
     // ignore: avoid_print
     print('fin hilo: ${DateTime.now()}');
     // ignore: prefer_const_constructors
-    Timer(Duration(minutes: 1), _callback);
+    Timer(Duration(minutes: 5), _callback);
   }
 }
 
@@ -160,7 +156,7 @@ class NotificationService extends ChangeNotifier {
             iOS: iosInitializationSettings);
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: doSometing());
+        onSelectNotification: _callback());
   }
 
   //Instant Notifications
@@ -191,8 +187,8 @@ class NotificationService extends ChangeNotifier {
 
     var platform = new NotificationDetails(android: android);
 
-    await _flutterLocalNotificationsPlugin.show(
-        0, "Notificación Demo Image ", "Tap to do something", platform,
+    await _flutterLocalNotificationsPlugin.show(0, "Notificación Demo Image ",
+        "precione para ver su notificacion", platform,
         payload: "Welcome to demo app");
   }
 
@@ -209,30 +205,36 @@ class NotificationService extends ChangeNotifier {
     var platform = new NotificationDetails(android: android);
 
     await _flutterLocalNotificationsPlugin.show(
-        0, "Notificación Demo Stylish ", "Tap to do something", platform);
+        0,
+        "Estas Compartiendo tu viaje para tu seguridad",
+        "precione para ver su notificacion",
+        platform);
   }
 
   //Sheduled Notification
 
   Future sheduledNotification() async {
     var interval = RepeatInterval.everyMinute;
-    var bigPicture = BigPictureStyleInformation(
-        DrawableResourceAndroidBitmap("ic_launcher"),
-        largeIcon: DrawableResourceAndroidBitmap("ic_launcher"),
-        contentTitle: "Notificación Demo image ",
-        summaryText: "This is some text",
-        htmlFormatContent: true,
-        htmlFormatContentTitle: true);
+    // var bigPicture = BigPictureStyleInformation(
+    //     DrawableResourceAndroidBitmap("ic_launcher"),
+    //     largeIcon: DrawableResourceAndroidBitmap("ic_launcher"),
+    //     contentTitle: "Compartiendo tu viaje ",
+    //     summaryText: "para tu seguridad se esta compartiendo tu viaje",
+    //     htmlFormatContent: true,
+    //     htmlFormatContentTitle: true);
 
-    var android = AndroidNotificationDetails("id", "channel", "description",
-        styleInformation: bigPicture);
+    var android = AndroidNotificationDetails(
+      "id",
+      "channel",
+      "description",
+    );
 
     var platform = new NotificationDetails(android: android);
 
     await _flutterLocalNotificationsPlugin.periodicallyShow(
         0,
-        "Notificación Demo Sheduled ",
-        "Tap to do something",
+        "Compartiendo tu viaje",
+        "para tu seguridad se esta compartiendo tu viaje",
         interval,
         platform,
         payload: "Welcome to demo app");
